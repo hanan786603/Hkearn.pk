@@ -1,0 +1,282 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple PTC — Index</title>
+  <meta name="description" content="Demo Paid-To-Click (PTC) index page — single file." />
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071129 0%, #071629 100%);color:#e6eef8;min-height:100vh}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(6px)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .container{max-width:1100px;margin:28px auto;padding:0 16px}.grid{display:grid;grid-template-columns:280px 1fr;gap:20px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+.sidebar{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+.profile{display:flex;gap:12px;align-items:center}
+.avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,#203a52,#123));display:flex;align-items:center;justify-content:center;font-weight:700}
+.small{font-size:13px;color:var(--muted)}
+
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px}
+.balance{font-size:20px;font-weight:700}
+
+.filters{margin-top:12px;display:flex;gap:8px}
+.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;color:inherit;cursor:pointer}
+
+.ads-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.ad{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.ad h4{margin:0 0 6px 0}
+.ad .meta{font-size:13px;color:var(--muted);margin-bottom:8px}
+.ad .price{font-weight:700}
+
+.footer{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+
+/* modal */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);backdrop-filter:blur(3px);visibility:hidden;opacity:0;pointer-events:none;transition:all .18s}
+.modal.open{visibility:visible;opacity:1;pointer-events:auto}
+.modal .panel{width:92%;max-width:720px;background:var(--card);padding:18px;border-radius:10px}
+
+.login-form{display:flex;flex-direction:column;gap:10px}
+input,select{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+
+.cta{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#042027;font-weight:700;cursor:pointer}
+
+.small-muted{font-size:13px;color:var(--muted)}
+
+/* tiny responsive tweaks */
+@media (max-width:520px){header{padding:12px} .logo{width:40px;height:40px}}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">PTC</div>
+      <div>
+        <div style="font-weight:700">PTC Demo</div>
+        <div class="small-muted small">Earn by viewing ads — demo only</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="small muted small-muted">Balance: <span id="topBalance">0.00</span> USD</div>
+      <button class="btn" id="openLogin">Login / Register</button>
+    </div>
+  </header>  <main class="container">
+    <div class="grid">
+      <aside class="sidebar card">
+        <div class="profile">
+          <div class="avatar">U</div>
+          <div>
+            <div id="username">Guest</div>
+            <div class="small-muted small">Member since: —</div>
+          </div>
+        </div><div style="margin-top:12px" class="card">
+      <div class="small-muted">Your Balance</div>
+      <div class="balance" id="balance">$0.00</div>
+      <div class="small-muted" style="margin-top:8px">Withdrawals are disabled in demo</div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="small-muted">Filters</div>
+      <div class="filters">
+        <button class="btn" onclick="filterAds('all')">All</button>
+        <button class="btn" onclick="filterAds('short')">Short</button>
+        <button class="btn" onclick="filterAds('long')">Long</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px" class="card">
+      <div class="small-muted">Quick Actions</div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="simulateReferral()">Simulate Referral</button>
+        <button class="btn" onclick="resetDemo()">Reset Demo</button>
+      </div>
+    </div>
+  </aside>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0">Available Ads</h2>
+      <div class="small-muted">Click an ad, watch the timer, get paid</div>
+    </div>
+
+    <div class="ads-list" id="adsList">
+      <!-- ads injected by JS -->
+    </div>
+
+  </section>
+</div>
+
+<div class="footer">This is a demo PTC index page. Replace demo logic with server-side code for production.</div>
+
+  </main>  <!-- modal: ad viewer -->  <div class="modal" id="adModal">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700" id="adTitle">Ad Title</div>
+          <div class="small-muted" id="adDesc">Ad description / advertiser</div>
+        </div>
+        <div style="text-align:right">
+          <div class="small-muted">Timer</div>
+          <div style="font-weight:700;font-size:20px" id="adTimer">0</div>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;text-align:center">Ad content / iframe placeholder</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px">
+        <button class="btn" onclick="closeAd()">Close</button>
+        <button class="cta" id="claimBtn" onclick="claimAd()" disabled>Claim</button>
+      </div>
+    </div>
+  </div>  <!-- modal: login/register -->  <div class="modal" id="loginModal">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:700">Login / Register (Demo)</div>
+        <button class="btn" onclick="closeLogin()">Close</button>
+      </div>
+      <div style="margin-top:12px">
+        <form class="login-form" onsubmit="event.preventDefault();loginDemo()">
+          <input id="inputUser" placeholder="Username (demo)" required />
+          <input id="inputEmail" placeholder="Email (demo)" required />
+          <select id="userType"><option value="member">Member</option><option value="advertiser">Advertiser</option></select>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn" type="button" onclick="closeLogin()">Cancel</button>
+            <button class="cta" type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>  <script>
+    // Demo data: replace with server values in production
+    const demoAds = [
+      {id:1,title:'Visit Shop — Short',desc:'Sponsored — 10s viewing',seconds:10,payout:0.02,type:'short'},
+      {id:2,title:'Product Review — Long',desc:'Sponsored — 30s viewing',seconds:30,payout:0.10,type:'long'},
+      {id:3,title:'Survey Invite — Short',desc:'Sponsored — 15s viewing',seconds:15,payout:0.03,type:'short'},
+      {id:4,title:'Download App — Long',desc:'Sponsored — 25s viewing',seconds:25,payout:0.08,type:'long'}
+    ];
+
+    // UI refs
+    const adsList = document.getElementById('adsList');
+    const balanceEl = document.getElementById('balance');
+    const topBalance = document.getElementById('topBalance');
+
+    // basic localStorage demo balance & user
+    function loadState(){
+      const bal = parseFloat(localStorage.getItem('ptc_balance')||'0');
+      const user = JSON.parse(localStorage.getItem('ptc_user')||'null');
+      balanceEl.textContent = '$' + bal.toFixed(2);
+      topBalance.textContent = '$' + bal.toFixed(2);
+      document.getElementById('username').textContent = user ? user.name : 'Guest';
+    }
+
+    function saveBalance(v){
+      localStorage.setItem('ptc_balance', String(v));
+      loadState();
+    }
+
+    function renderAds(list){
+      adsList.innerHTML = '';
+      list.forEach(ad=>{
+        const el = document.createElement('div'); el.className='ad card';
+        el.innerHTML = `
+          <h4>${ad.title}</h4>
+          <div class="meta">${ad.desc} • <span class="price">$${ad.payout.toFixed(2)}</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="small-muted">${ad.seconds}s view</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn" onclick="openAd(${ad.id})">View</button>
+              <button class="btn" onclick="reportAd(${ad.id})">Report</button>
+            </div>
+          </div>
+        `;
+        adsList.appendChild(el);
+      });
+    }
+
+    function filterAds(kind){
+      if(kind==='all') renderAds(demoAds);
+      else renderAds(demoAds.filter(a=>a.type===kind));
+    }
+
+    // ad viewing flow (demo) — in production: implement server verification
+    let activeAd = null; let adTimerInterval = null; let remaining = 0;
+    function openAd(id){
+      activeAd = demoAds.find(a=>a.id===id);
+      if(!activeAd) return;
+      document.getElementById('adTitle').textContent = activeAd.title;
+      document.getElementById('adDesc').textContent = activeAd.desc;
+      remaining = activeAd.seconds;
+      document.getElementById('adTimer').textContent = remaining;
+      document.getElementById('claimBtn').disabled = true;
+      document.getElementById('adModal').classList.add('open');
+      adTimerInterval = setInterval(()=>{
+        remaining -= 1;
+        document.getElementById('adTimer').textContent = remaining;
+        if(remaining<=0){
+          clearInterval(adTimerInterval);
+          document.getElementById('claimBtn').disabled = false;
+        }
+      },1000);
+    }
+
+    function closeAd(){
+      document.getElementById('adModal').classList.remove('open');
+      clearInterval(adTimerInterval);
+      activeAd = null;
+    }
+
+    function claimAd(){
+      if(!activeAd) return;
+      // award payout to balance
+      const bal = parseFloat(localStorage.getItem('ptc_balance')||'0');
+      const next = bal + activeAd.payout;
+      saveBalance(next);
+      alert('You earned $' + activeAd.payout.toFixed(2) + ' — balance updated.');
+      closeAd();
+    }
+
+    function reportAd(id){
+      alert('Reported ad #' + id + '. In production this would notify admin.');
+    }
+
+    // login modal logic (demo)
+    document.getElementById('openLogin').addEventListener('click', ()=>{
+      document.getElementById('loginModal').classList.add('open');
+    });
+    function closeLogin(){document.getElementById('loginModal').classList.remove('open');}
+    function loginDemo(){
+      const name = document.getElementById('inputUser').value.trim();
+      const email = document.getElementById('inputEmail').value.trim();
+      if(!name || !email) return alert('Enter details');
+      const u = {name,email,joined:new Date().toISOString()};
+      localStorage.setItem('ptc_user', JSON.stringify(u));
+      closeLogin(); loadState();
+      alert('Demo user saved — this is local only.');
+    }
+
+    // small demo helpers
+    function simulateReferral(){
+      const bal = parseFloat(localStorage.getItem('ptc_balance')||'0');
+      saveBalance(bal + 0.50);
+      alert('Simulated referral bonus: $0.50');
+    }
+    function resetDemo(){
+      if(confirm('Reset demo data?')){localStorage.removeItem('ptc_balance');localStorage.removeItem('ptc_user');loadState();}
+    }
+
+    // init
+    (function init(){
+      if(!localStorage.getItem('ptc_balance')) localStorage.setItem('ptc_balance','0');
+      renderAds(demoAds);
+      loadState();
+    })();
+
+    // expose to global for demo buttons
+    window.filterAds = filterAds; window.openAd=openAd; window.claimAd=claimAd; window.closeAd=closeAd; window.reportAd=reportAd; window.simulateReferral=simulateReferral; window.resetDemo=resetDemo; window.closeLogin=closeLogin;
+  </script></body>
+</html>
